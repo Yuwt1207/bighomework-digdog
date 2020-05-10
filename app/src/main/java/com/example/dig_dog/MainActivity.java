@@ -1,5 +1,8 @@
 package com.example.dig_dog;
 
+
+//ver1.0 2020-5-10 增加点击页面跳转播放视频和双击事件
+
 import android.support.v7.app.AppCompatActivity;
 
 
@@ -35,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
         //将asserts下的API.txt解析为videoList
         parseGsonString();
         //为每个videoList里的video生成一个face,加进faceList
-        for(Video v:videoList)
-        {
-            Face face=new Face(v.nickname,v.avatar);
-            faceList.add(face);
-        }
-        FaceAdapter adapter = new FaceAdapter(faceList,this);
+//        for(Video v:videoList)
+//        {
+//            Face face=new Face(v.nickname,v.avatar);
+//            faceList.add(face);
+//        }
+        FaceAdapter adapter = new FaceAdapter(videoList,this);
         recyclerView.setAdapter(adapter);
     }
 

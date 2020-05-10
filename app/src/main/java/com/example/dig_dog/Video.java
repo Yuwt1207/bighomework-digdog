@@ -29,4 +29,29 @@ public class Video
                 ", avatar="+avatar+
                 '}';
     }
+
+    public int getLikecount() {
+        return likecount;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getFeedurl() {
+        return feedurl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
 }
