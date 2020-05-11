@@ -24,7 +24,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<Face> faceList = new ArrayList<>();
+//    private List<Face> faceList = new ArrayList<>();
     private List<Video> videoList;
     final private String apiFileName="API.txt";
     @Override
