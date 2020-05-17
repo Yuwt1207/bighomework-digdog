@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -25,7 +27,9 @@ public class VideoPlayActivity extends AppCompatActivity {
     private VideoView videoView;
     private TextView likecounttv;
     private ImageView likeiv;
+    private ImageView movelikeiv;
     private ImageView playbuttoniv;
+    private int isliked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +46,9 @@ public class VideoPlayActivity extends AppCompatActivity {
         videoView=findViewById(R.id.videoView);
         likecounttv=findViewById(R.id.likecounttextview);
         likeiv=findViewById(R.id.likeimageview);
+        movelikeiv=findViewById(R.id.movelikeimageview);
         playbuttoniv=findViewById(R.id.playbuttoniv);
+        isliked=0;
 
         Bundle bundle=getIntent().getExtras();
         String description=bundle.getString("description");
@@ -106,13 +112,48 @@ public class VideoPlayActivity extends AppCompatActivity {
             }
         });
 
+        //喜欢键点击事件
+        likeiv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isliked==0)
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已喜欢",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(likeiv);
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(movelikeiv);
+                    isliked=1;
+                    playlikeanimation();
+                }
+                else
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已取消喜欢",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(likeiv);
+//                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(movelikeiv);
+                    isliked=0;
+                }
+
+            }
+        });
+
         //实现双击事件监听
         videoView.setOnTouchListener(new OnDoubleClickListener(new OnDoubleClickListener.DoubleClickCallback() {
             @Override
             public void onDoubleClick() {
-                Toast.makeText(VideoPlayActivity.this,"已喜欢",Toast.LENGTH_SHORT).show();
-                Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(likeiv);
-
+                if(isliked==0)
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已喜欢",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(likeiv);
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(movelikeiv);
+                    isliked=1;
+                    playlikeanimation();
+                }
+                else
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已取消喜欢",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(likeiv);
+//                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(movelikeiv);
+                    isliked=0;
+                }
 //                videoView.pause();
             }
 
@@ -131,6 +172,45 @@ public class VideoPlayActivity extends AppCompatActivity {
         }));
 
 
+    }
+
+    public void playlikeanimation(){
+        movelikeiv.setVisibility(View.VISIBLE);
+        AnimationSet animationSet=new AnimationSet(true);
+        AlphaAnimation alphaAnimation=new AlphaAnimation(1.0f,0f);
+        alphaAnimation.setDuration(1200);
+        //TranslateAnimation的8个参数为
+        //       fromXType：移动前的x轴坐标的类型
+        //       fromXValue：移动前的x轴的坐标
+        //       toXType：移动后的x轴的坐标的类型
+        //       toXValue：移动后的x轴的坐标
+        //       fromYType：移动前的y轴的坐标的类型
+        //       fromYValue：移动前的y轴的坐标
+        //       toYType：移动后的y轴的坐标的类型
+        //       toYValue：移动后的y轴的坐标
+        //RELATIVE_TO_SELF表示以自己为参照，x正方向为→，y正方向为↓
+        TranslateAnimation translateAnimation=new TranslateAnimation(Animation.RELATIVE_TO_SELF,0f,Animation.RELATIVE_TO_SELF,0f,
+                Animation.RELATIVE_TO_SELF,0f,Animation.RELATIVE_TO_SELF,-1f);
+        translateAnimation.setDuration(1000);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.addAnimation(translateAnimation);
+        movelikeiv.startAnimation(animationSet);
+        animationSet.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                movelikeiv.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
 
