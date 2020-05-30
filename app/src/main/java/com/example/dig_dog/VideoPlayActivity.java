@@ -29,7 +29,9 @@ public class VideoPlayActivity extends AppCompatActivity {
     private ImageView likeiv;
     private ImageView movelikeiv;
     private ImageView playbuttoniv;
+    private ImageView starbuttoniv;
     private int isliked;
+    private int isstared;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +50,9 @@ public class VideoPlayActivity extends AppCompatActivity {
         likeiv=findViewById(R.id.likeimageview);
         movelikeiv=findViewById(R.id.movelikeimageview);
         playbuttoniv=findViewById(R.id.playbuttoniv);
+        starbuttoniv=findViewById(R.id.starbuttoniv);
         isliked=0;
+        isstared=0;
 
         Bundle bundle=getIntent().getExtras();
         String description=bundle.getString("description");
@@ -61,6 +65,7 @@ public class VideoPlayActivity extends AppCompatActivity {
         likecounttv.setText(""+likecount);
         Glide.with(this).load(R.drawable.white_heart).into(likeiv);
         Glide.with(this).load(R.drawable.playbutton).into(playbuttoniv);
+        Glide.with(this).load(R.drawable.white_star).into(starbuttoniv);
 
         videoView.setVideoURI(Uri.parse(videourl));
 
@@ -132,6 +137,38 @@ public class VideoPlayActivity extends AppCompatActivity {
                     isliked=0;
                 }
 
+            }
+        });
+
+        likeiv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(VideoPlayActivity.this,"已喜欢收藏",Toast.LENGTH_SHORT).show();
+                Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(likeiv);
+                Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(movelikeiv);
+                isliked=1;
+                playlikeanimation();
+                Glide.with(VideoPlayActivity.this).load(R.drawable.red_star).into(starbuttoniv);
+                isstared=1;
+                return true;//这里返回true不触发点击事件
+            }
+        });
+
+        starbuttoniv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isstared==0)
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已收藏",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.red_star).into(starbuttoniv);
+                    isstared=1;
+                }
+                else
+                {
+                    Toast.makeText(VideoPlayActivity.this,"已取消收藏",Toast.LENGTH_SHORT).show();
+                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_star).into(starbuttoniv);
+                    isstared=0;
+                }
             }
         });
 
