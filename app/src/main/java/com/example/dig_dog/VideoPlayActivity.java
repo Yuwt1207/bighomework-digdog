@@ -38,36 +38,7 @@ public class VideoPlayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_play);
 
-        //隐藏ActionBar
-        getSupportActionBar().hide();
-        //设置页面全屏
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        descriptiontv=findViewById(R.id.descriptiontextview);
-        nicknametv=findViewById(R.id.nicknametextview);
-        videoView=findViewById(R.id.videoView);
-        likecounttv=findViewById(R.id.likecounttextview);
-        likeiv=findViewById(R.id.likeimageview);
-        movelikeiv=findViewById(R.id.movelikeimageview);
-        playbuttoniv=findViewById(R.id.playbuttoniv);
-        starbuttoniv=findViewById(R.id.starbuttoniv);
-        isliked=0;
-        isstared=0;
-
-        Bundle bundle=getIntent().getExtras();
-        String description=bundle.getString("description");
-        String nickname=bundle.getString("nickname");
-        int likecount=bundle.getInt("likecount");
-        final String videourl=bundle.getString("videourl");
-
-        descriptiontv.setText(description);
-        nicknametv.setText("@"+nickname);
-        likecounttv.setText(""+likecount);
-        Glide.with(this).load(R.drawable.white_heart).into(likeiv);
-        Glide.with(this).load(R.drawable.playbutton).into(playbuttoniv);
-        Glide.with(this).load(R.drawable.white_star).into(starbuttoniv);
-
-        videoView.setVideoURI(Uri.parse(videourl));
+        initUI();
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -250,6 +221,37 @@ public class VideoPlayActivity extends AppCompatActivity {
         });
     }
 
+    public void initUI(){
+        //隐藏ActionBar
+        getSupportActionBar().hide();
+        //设置页面全屏
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        descriptiontv=findViewById(R.id.descriptiontextview);
+        nicknametv=findViewById(R.id.nicknametextview);
+        videoView=findViewById(R.id.videoView);
+        likecounttv=findViewById(R.id.likecounttextview);
+        likeiv=findViewById(R.id.likeimageview);
+        movelikeiv=findViewById(R.id.movelikeimageview);
+        playbuttoniv=findViewById(R.id.playbuttoniv);
+        starbuttoniv=findViewById(R.id.starbuttoniv);
+        isliked=0;
+        isstared=0;
+
+        Bundle bundle=getIntent().getExtras();
+        String description=bundle.getString("description");
+        String nickname=bundle.getString("nickname");
+        int likecount=bundle.getInt("likecount");
+        final String videourl=bundle.getString("videourl");
+
+        descriptiontv.setText(description);
+        nicknametv.setText("@"+nickname);
+        likecounttv.setText(""+likecount);
+        Glide.with(this).load(R.drawable.white_heart).into(likeiv);
+        Glide.with(this).load(R.drawable.playbutton).into(playbuttoniv);
+        Glide.with(this).load(R.drawable.white_star).into(starbuttoniv);
+
+        videoView.setVideoURI(Uri.parse(videourl));
+    }
 
 }
