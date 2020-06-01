@@ -40,6 +40,7 @@ public class LogonActivity extends AppCompatActivity {
 //        hinttv=findViewById(R.id.hinttv);
         dbhelper=new Dbhelper(this);
 
+        logonbt.setText("创建账号");
 
 
         logonbt.setOnClickListener(new View.OnClickListener() {

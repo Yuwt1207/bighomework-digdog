@@ -1,10 +1,14 @@
 package com.example.dig_dog;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -19,6 +23,8 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.example.dig_dog.db.DbContract;
+import com.example.dig_dog.db.Dbhelper;
 
 public class VideoPlayActivity extends AppCompatActivity {
 
@@ -32,14 +38,26 @@ public class VideoPlayActivity extends AppCompatActivity {
     private ImageView starbuttoniv;
     private int isliked;
     private int isstared;
+    private Dbhelper dbhelper;
+    private  String description;
+    private  String nickname;
+    private  String videourl;
+    private  int likecount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_play);
 
-        initUI();
+        dbhelper=new Dbhelper(this);
 
+        Bundle bundle=getIntent().getExtras();
+        description=bundle.getString("description");
+        nickname=bundle.getString("nickname");
+        likecount=bundle.getInt("likecount");
+        videourl=bundle.getString("videourl");
+
+        initUI();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -99,6 +117,7 @@ public class VideoPlayActivity extends AppCompatActivity {
                     Glide.with(VideoPlayActivity.this).load(R.drawable.red_heart).into(movelikeiv);
                     isliked=1;
                     playlikeanimation();
+                    ChangeLikeInDB(videourl,true);
                 }
                 else
                 {
@@ -106,11 +125,13 @@ public class VideoPlayActivity extends AppCompatActivity {
                     Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(likeiv);
 //                    Glide.with(VideoPlayActivity.this).load(R.drawable.white_heart).into(movelikeiv);
                     isliked=0;
+                    ChangeLikeInDB(videourl,false);
                 }
 
             }
         });
 
+        //一键二连
         likeiv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -121,10 +142,13 @@ public class VideoPlayActivity extends AppCompatActivity {
                 playlikeanimation();
                 Glide.with(VideoPlayActivity.this).load(R.drawable.red_star).into(starbuttoniv);
                 isstared=1;
+                ChangeLikeInDB(videourl,true);
+                ChangeStarInDB(videourl,true);
                 return true;//这里返回true不触发点击事件
             }
         });
 
+        // 收藏单机时间
         starbuttoniv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,11 +157,13 @@ public class VideoPlayActivity extends AppCompatActivity {
                     Toast.makeText(VideoPlayActivity.this,"已收藏",Toast.LENGTH_SHORT).show();
                     Glide.with(VideoPlayActivity.this).load(R.drawable.red_star).into(starbuttoniv);
                     isstared=1;
+                    ChangeStarInDB(videourl,true);
                 }
                 else
                 {
                     Toast.makeText(VideoPlayActivity.this,"已取消收藏",Toast.LENGTH_SHORT).show();
                     Glide.with(VideoPlayActivity.this).load(R.drawable.white_star).into(starbuttoniv);
+                    ChangeStarInDB(videourl,false);
                     isstared=0;
                 }
             }
@@ -235,23 +261,103 @@ public class VideoPlayActivity extends AppCompatActivity {
         movelikeiv=findViewById(R.id.movelikeimageview);
         playbuttoniv=findViewById(R.id.playbuttoniv);
         starbuttoniv=findViewById(R.id.starbuttoniv);
-        isliked=0;
-        isstared=0;
 
-        Bundle bundle=getIntent().getExtras();
-        String description=bundle.getString("description");
-        String nickname=bundle.getString("nickname");
-        int likecount=bundle.getInt("likecount");
-        final String videourl=bundle.getString("videourl");
+
+        String userName = ConfigHelper.getInstance().UserName;
+        if(CheckLikedInDB(userName,videourl))
+        {
+            isliked = 1;
+            Glide.with(this).load(R.drawable.red_heart).into(likeiv);
+        }
+        else
+        {
+            isliked = 0;
+            Glide.with(this).load(R.drawable.white_heart).into(likeiv);
+        }
+        if(CheckStaredInDB(userName,videourl))
+        {
+            isstared= 1;
+            Glide.with(this).load(R.drawable.red_star).into(starbuttoniv);
+        }
+        else
+        {
+            isstared = 0;
+            Glide.with(this).load(R.drawable.white_star).into(starbuttoniv);
+        }
 
         descriptiontv.setText(description);
         nicknametv.setText("@"+nickname);
         likecounttv.setText(""+likecount);
-        Glide.with(this).load(R.drawable.white_heart).into(likeiv);
+
         Glide.with(this).load(R.drawable.playbutton).into(playbuttoniv);
-        Glide.with(this).load(R.drawable.white_star).into(starbuttoniv);
 
         videoView.setVideoURI(Uri.parse(videourl));
     }
+
+    private boolean CheckLikedInDB(String userName,String url)
+    {
+        SQLiteDatabase db=dbhelper.getWritableDatabase();
+        String[] projection={DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME, DbContract.DIGDOGEntry.TABLE_NAME_LIKED};
+        String selection= DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME+"='"+userName+"' AND "+ DbContract.DIGDOGEntry.TABLE_NAME_LIKED +"='"+videourl+"'";
+        Cursor cursor=db.query(DbContract.DIGDOGEntry.TABLE_NAME_LIKED,projection,selection
+                ,null,null,null,null);
+        return cursor.getCount()!=0;
+    }
+
+    private  boolean CheckStaredInDB(String userName,String url)
+    {
+        SQLiteDatabase db=dbhelper.getWritableDatabase();
+        String[] projection={DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME, DbContract.DIGDOGEntry.TABLE_NAME_STARED};
+        String selection= DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME+"='"+userName+"' AND "+ DbContract.DIGDOGEntry.TABLE_NAME_STARED +"='"+videourl+"'";
+        Cursor cursor=db.query(DbContract.DIGDOGEntry.TABLE_NAME_STARED,projection,selection
+                ,null,null,null,null);
+        Log.d("wf",cursor.getCount()+"");
+        return cursor.getCount()!=0;
+    }
+
+
+    private void ChangeLikeInDB(String url,boolean liked)
+    {
+        SQLiteDatabase db=dbhelper.getWritableDatabase();
+        String userName = ConfigHelper.getInstance().UserName;
+        if(liked)
+        {
+
+            ContentValues contentValues=new ContentValues();
+            contentValues.put(DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME,userName);
+            contentValues.put(DbContract.DIGDOGEntry.COLUMN_NAME_LIKED,videourl);
+            db.insert(DbContract.DIGDOGEntry.TABLE_NAME_LIKED,null,contentValues);
+        }
+        else
+        {
+            String selection = DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME + " LIKE ?";
+            String[] selectionArgs={userName};
+            int deleteRows = db.delete(DbContract.DIGDOGEntry.COLUMN_NAME_LIKED,selection,selectionArgs);
+        }
+        db.close();;
+    }
+
+    private void ChangeStarInDB(String url,boolean stared)
+    {
+        SQLiteDatabase db=dbhelper.getWritableDatabase();
+        String userName = ConfigHelper.getInstance().UserName;
+        if(stared)
+        {
+
+            ContentValues contentValues=new ContentValues();
+            contentValues.put(DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME,ConfigHelper.getInstance().UserName);
+            contentValues.put(DbContract.DIGDOGEntry.COLUMN_NAME_STARED,videourl);
+            db.insert(DbContract.DIGDOGEntry.TABLE_NAME_STARED,null,contentValues);
+
+        }
+        else
+        {
+            String selection = DbContract.DIGDOGEntry.COLUMN_NAME_USERNAME + " LIKE ?";
+            String[] selectionArgs={userName};
+            int deleteRows = db.delete(DbContract.DIGDOGEntry.COLUMN_NAME_STARED,selection,selectionArgs);
+        }
+        db.close();
+    }
+
 
 }

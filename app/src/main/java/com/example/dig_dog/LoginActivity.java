@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import com.example.dig_dog.db.DbContract;
 import com.example.dig_dog.db.Dbhelper;
+import com.example.dig_dog.ConfigHelper;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,6 +36,9 @@ public class LoginActivity extends AppCompatActivity {
         passwordet=findViewById(R.id.password);
         loginbt=findViewById(R.id.login);
         logonbt=findViewById(R.id.logonbutton);
+        loginbt.setText("登录");
+        logonbt.setText("注册");
+
 
 
 
@@ -48,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                 boolean temp= Checkusername();
                 if(!temp)//找到对应用户信息
                 {
+                    ConfigHelper.getInstance().UserName=usernameet.getText().toString();
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(intent);
                     Toast.makeText(LoginActivity.this,"登陆成功",Toast.LENGTH_SHORT).show();
