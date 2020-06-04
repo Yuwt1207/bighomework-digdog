@@ -9,7 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageView;
 
 import  com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +32,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
+        InitView();
+
+
+    }
+
+    private void InitView()
+    {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        ImageView backBtn = findViewById(R.id.back);
+        backBtn.setOnClickListener(
+            (View view)->{ finish(); }
+        );
 
         RecyclerView recyclerView = findViewById(R.id.face_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -46,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         FaceAdapter adapter = new FaceAdapter(videoList,this);
         recyclerView.setAdapter(adapter);
     }
+
 
     private void parseGsonString() {
         String gsonString=new String("");
