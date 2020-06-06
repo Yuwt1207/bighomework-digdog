@@ -287,7 +287,9 @@ public class VideoPlayActivity extends AppCompatActivity {
 
         descriptiontv.setText(description);
         nicknametv.setText("@"+nickname);
-        likecounttv.setText(""+likecount);
+        float likecountf =(float)likecount/1000;
+        likecountf = (float)(Math.round(likecountf*10)/10);
+        likecounttv.setText(""+(likecountf>1.0f?likecountf+"k":likecount));
 
         Glide.with(this).load(R.drawable.playbutton).into(playbuttoniv);
 
